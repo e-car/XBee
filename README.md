@@ -1,5 +1,5 @@
 # XBee
-AE86 車内無線通信に使うXBeeプログラム
+EV86 車内無線通信に使うXBeeプログラム
 
 EDISONを中心、Arduino Megaを末端とするスター型ネットワーク
 
