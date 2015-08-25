@@ -40,8 +40,14 @@ XBeeNode coor = { 0x0013A200, 0x40B77090, "Coordinator", "startReq", "startAck",
 EV86XBeeR router = EV86XBeeR();
 
 String request = "request";    // コールバック用変数
-String startAck = "startAck2";      // コネクション許可応答
-String senData = "Water Temp"; // センサー値(仮)
+
+#ifdef MEGA
+String startAck = "startAck1"; // コネクション許可応答
+String senData = "MEGAsensor"; // センサー値(仮)
+#else
+String startAck = "startAck2"; // コネクション許可応答
+String senData = "EDISONsensor"; // センサー値(仮)
+#endif
 
 void setup() {
   Serial.begin(9600);                          // Arduino-PC間の通信
@@ -62,70 +68,69 @@ void setup() {
   router.bufFlush();                         
   delay(1000);
   
-  // ホストXBeeの設定確認用メソッド
-  router.hsXBeeStatus();                     
-  delay(2000);
+//  // ホストXBeeの設定確認用メソッド
+//  router.hsXBeeStatus();                     
+//  delay(2000);
   
-  // リモートXBeeの情報を確認
-  router.setDstAdd64(coor.h64Add, coor.l64Add);
-  router.rmXBeeStatus();
+//  // リモートXBeeの情報を確認
+//  router.setDstAdd64(coor.h64Add, coor.l64Add);
+//  router.rmXBeeStatus();
   Serial.println("Finish checking destination xbee node parameters");
   delay(2000);
 }
 
 void loop() {
+  Serial.println("-----------------------------");
   // 受信データの初期化
   router.clearData();
   
-  Serial.println("-----------------------------");
   // 受信パケットの確認
   Serial.println("[get Packet]");
   router.getPacket();
-  delay(300);
    
   // 受信データが接続要求だった場合 
   if (router.checkData(coor.startReq)) {
-   Serial.println("get startReq");
+   Serial.println("get [startReq]");
    
    // 接続応答を送信
+   Serial.println("send startAck");
    router.sendData(startAck);
    
-   // 送信状態のチェック
+   // コーディネータからの接続応答を確認
    Serial.println("[get Packet]");
-   router.getPacket(); 
-  }
-  // 受信データが接続応答だった場合 
-  else if (router.checkData(coor.startAck)) {
-   coor.transmit = true; 
-   Serial.println("Connected with coordinator");
-  }  
-  // 受信データがリクエストだった場合
+   for (int apiID, i = 0; ((apiID = router.getPacket()) != ZB_RX_RESPONSE) && !router.checkData(coor.startAck); i++) {
+     Serial.print("timeout : ");
+     Serial.println(i);
+     
+    // 受信データの初期化
+    router.clearData();
+     
+     delay(100); 
+   }
+   coor.transmit = true;
+   Serial.println("Connected with coordinator"); 
+  } // 受信データがリクエストだった場合 
   else if (router.checkData(request)) {
     // センサーデータを送信する
-    Serial.print("send :");
+    Serial.print("send : ");
     Serial.println(senData);
     router.sendData(senData);
-    Serial.println();
-    delay(100);
     
-    // 送信状態のチェック
-    Serial.println("[get Packet]");
-    router.getPacket(); 
-    
-    if (router.getConnectStatus() == SUCCESS) {
-      coor.transmit = true;
-      Serial.print("Connected with ");
-    } else {
-      coor.transmit = false;
-      Serial.print("Disconnected with ");
-    }
-    Serial.println(coor.nodeName);
-    
-    
+    while(router.getPacket() != ZB_TX_STATUS_RESPONSE) {
+      delay(20);
+    }; 
+    coor.transmit = true;
   } // データが来ていない場合
   else {
     Serial.println("Not send");
+    coor.transmit = false;
   }
+ 
+  // 接続状態の確認
+  Serial.print("Transmit Status : ");
+  Serial.println(coor.transmit);
   
-  delay(300); 
+  // 受信データの初期化
+  router.clearData();
+  delay(300);
 }
