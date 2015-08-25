@@ -572,10 +572,8 @@ int EV86XBee::getPacket() { // デフォルト引数はプロトタイプ宣言�
 // 受信データが指定した文字列かどうかチェック
 boolean EV86XBee::checkData(String request) {
   if (get_data.equals(request)) {
-    Serial.println("SUCCESS!!");
     return true;
   } else {
-    Serial.println("ERROR");
     return false;
   }
 }
