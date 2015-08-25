@@ -46,7 +46,7 @@ String startAck = "startAck1"; // コネクション許可応答
 String senData = "MEGAsensor"; // センサー値(仮)
 #else
 String startAck = "startAck2"; // コネクション許可応答
-String senData = "EDISONsensor"; // センサー値(仮)
+String senData = "EDISO_yahoo!!!"; // センサー値(仮)
 #endif
 
 void setup() {
