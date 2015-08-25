@@ -566,6 +566,7 @@ protected:
            
 protected:
     String get_data; // 受信データ
+    int connectStatus; // 接続状態
              
 protected:
     EV86XBee();                                                      // コンストラクタ
@@ -587,6 +588,7 @@ public:
     void clearData();                                      // 受信データを初期化する
     void stopRequest(String _stop);                        // リモートXBeeへ送信停止要求メソッドを出すメソッド
     boolean checkData(String request);  // 受信データがリクエストかチェック
+    int getConnectStatus();
 };
 
 
@@ -605,7 +607,7 @@ public:
 /*                 Router                    */
 
 // EV86XBeeのRouterクラス
-class EV86XBeeR : public EV86XBee {  
+class EV86XBeeR : public EV86XBee {    
 public:
     EV86XBeeR();
     

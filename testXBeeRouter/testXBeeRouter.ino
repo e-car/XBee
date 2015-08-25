@@ -15,7 +15,6 @@
 #ifdef MEGA
 #include <SoftwareSerial.h>
 #endif
-
 #include "ev86XBee.h"   
 
 #ifdef MEGA
@@ -24,10 +23,6 @@ int tx = 11;
 SoftwareSerial myserial = SoftwareSerial(rx, tx);
 #endif
 
-String request = "request";    // コールバック用変数
-String startAck = "startAck2";      // コネクション許可応答
-String senData = "Water Temp"; // センサー値(仮)
-
 // Coordinatorの情報
 typedef struct {
   uint32_t h64Add;
@@ -35,14 +30,18 @@ typedef struct {
   String nodeName;
   String startReq;
   String startAck;
-  
+  boolean transmit;
 } XBeeNode;
 
 // Coordinator情報の初期化
-XBeeNode coor = { 0x0013A200, 0x40B77090, "Coordinator", "startReq", "startAck" };  
+XBeeNode coor = { 0x0013A200, 0x40B77090, "Coordinator", "startReq", "startAck", false };  
 
 // XBeeをRouterとして起動
 EV86XBeeR router = EV86XBeeR();
+
+String request = "request";    // コールバック用変数
+String startAck = "startAck2";      // コネクション許可応答
+String senData = "Water Temp"; // センサー値(仮)
 
 void setup() {
   Serial.begin(9600);                          // Arduino-PC間の通信
@@ -97,8 +96,8 @@ void loop() {
   }
   // 受信データが接続応答だった場合 
   else if (router.checkData(coor.startAck)) {
+   coor.transmit = true; 
    Serial.println("Connected with coordinator");
-   
   }  
   // 受信データがリクエストだった場合
   else if (router.checkData(request)) {
@@ -111,7 +110,17 @@ void loop() {
     
     // 送信状態のチェック
     Serial.println("[get Packet]");
-    router.getPacket();  
+    router.getPacket(); 
+    
+    if (router.getConnectStatus() == SUCCESS) {
+      coor.transmit = true;
+      Serial.print("Connected with ");
+    } else {
+      coor.transmit = false;
+      Serial.print("Disconnected with ");
+    }
+    Serial.println(coor.nodeName);
+    
     
   } // データが来ていない場合
   else {

@@ -42,10 +42,14 @@ void EV86XBee::setDstAdd64(uint32_t msbAdd, uint32_t lsbAdd) {
 
 // データ送信用の基底メソッド
 void EV86XBee::sendData(String str) {
-  uint8_t reqArray[str.length() + 1]; 
-  str.getBytes(reqArray, (str.length() + 1));
-  _zbTxRequest = ZBTxRequest(_dstAdd64, reqArray, (uint8_t)sizeof(reqArray)); 
-  _xbee.send(_zbTxRequest);
+  if (str.length() > 83) {
+    Serial.println("can't send data due to too send data !");
+  } else {
+    uint8_t reqArray[str.length() + 1]; 
+    str.getBytes(reqArray, (str.length() + 1));
+    _zbTxRequest = ZBTxRequest(_dstAdd64, reqArray, (uint8_t)sizeof(reqArray)); 
+    _xbee.send(_zbTxRequest);
+  }
 }
 
 // 受信したデータの確認
@@ -99,7 +103,7 @@ void EV86XBee::hsXBeeStatus() {
     getATCommand(hvCmd, NULL);      // XBee Hardware Version
     getATCommand(vrCmd, NULL);      // XBee Firmware Version
     
-    Serial.println("[[[Finish checking HOST xbee node parameters]]]");
+    Serial.println("[[[ Finish checking HOST xbee node parameters ]]]");
     Serial.println("------------------------------------------------------");
 }
 
@@ -151,7 +155,7 @@ void EV86XBee::rmXBeeStatus() {
     getRemoteATCommand(hvCmd, NULL);    // XBee Hardware Version
     getRemoteATCommand(vrCmd, NULL);    // XBee Firmware Version
     
-    Serial.println("[[[Finish checking REMOTE xbee node parameters]]]");
+    Serial.println("[[[ Finish checking REMOTE xbee node parameters ]]]");
     Serial.println("------------------------------------------------------");
 }
          
@@ -271,55 +275,72 @@ int EV86XBee::getPacket() { // デフォルト引数はプロトタイプ宣言�
                 switch (_zbTxStatusResponse.getDeliveryStatus()) {
                   case SUCCESS : 
                       Serial.println("Success!");
+                      connectStatus = SUCCESS;
                       break;
                   case MAC_ACK_FAILURE :
                       Serial.println("Mac ACK Failure");
+                      connectStatus = MAC_ACK_FAILURE;
                       break;
                   case CCA_FAILURE :
                       Serial.println("CCA Failure");
+                      connectStatus = CCA_FAILURE;
                       break;
                   case INVALID_DESTINATION_ENDPOINT :
                       Serial.println("Invalid Destination Endpoint");
+                      connectStatus = INVALID_DESTINATION_ENDPOINT;
                       break;
                   case NETWORK_ACK_FAILURE :
                       Serial.println("Network ACK Failure");
+                      connectStatus = NETWORK_ACK_FAILURE;
                       break;
                   case NOT_JOINED_TO_NETWORK :
                       Serial.println("Not Joined To Network");
+                      connectStatus = NOT_JOINED_TO_NETWORK;
                       break;
                   case SELF_ADDRESSED : 
                       Serial.println("Self-Addressed");
+                      connectStatus = SELF_ADDRESSED;
                       break;
                   case ADDRESS_NOT_FOUND :
                       Serial.println("Address Not Found");
+                      connectStatus = ADDRESS_NOT_FOUND;
                       break;
                   case ROUTE_NOT_FOUND :
                       Serial.println("Route Not Found");
+                      connectStatus = ROUTE_NOT_FOUND;
                       break;
                   case BROADCAST_SOURCE_FAILED_TO_HEAR_A_NEIGHBOR_RELAY_THE_MESSAGE :
                       Serial.println("Broadcast source failed to hear a neighbor relay the message");
+                      connectStatus = BROADCAST_SOURCE_FAILED_TO_HEAR_A_NEIGHBOR_RELAY_THE_MESSAGE;
                       break;
                   case INVALID_BINDING_TABLE_INDEX :
                       Serial.println("Invalid Binding Table Index");
+                      connectStatus = INVALID_BINDING_TABLE_INDEX;
                       break;
                   case RESOURCE_ERROR_LACK_OF_FREE_BUFFERS_TIMERS_AND_SO_FORTH :
                       Serial.println("Resource error lack of free buffers timers and so forth");
+                      connectStatus = RESOURCE_ERROR_LACK_OF_FREE_BUFFERS_TIMERS_AND_SO_FORTH;
                       break;
                   case ATTEMPTED_BROADCAST_WITH_APS_TRANSMISSION :
                       Serial.println("Attempted Broadcast With Transmission");
+                      connectStatus = ATTEMPTED_BROADCAST_WITH_APS_TRANSMISSION;
                       break;
                   case ATTEMPTED_UNICAST_WITH_APS_TRANSMISSION_BUT_EE :
                       Serial.println("Attempted unicast with transmission but EE=0");
+                      connectStatus = ATTEMPTED_UNICAST_WITH_APS_TRANSMISSION_BUT_EE;
                       break;
                   case RESOURCE_EEROR_LACK_OF_FREE_BUFFERS_TIMERS_AND_SO_FORTH :
                       Serial.println("Resource error lack of free buffers timers and so forth");
+                      connectStatus = RESOURCE_EEROR_LACK_OF_FREE_BUFFERS_TIMERS_AND_SO_FORTH;
                       break;
                   case PAYLOAD_TOO_LARGE :
                       Serial.println("Payload too large");
+                      connectStatus = PAYLOAD_TOO_LARGE;
                       break;
                       
                   default :
                       Serial.println("Error");
+                      connectStatus = -1; // unkonw Error
                       break;
                 }
 //                Serial.print("TxRetryCount    "); Serial.println(_zbTxStatusResponse.getTxRetryCount());
@@ -548,6 +569,7 @@ int EV86XBee::getPacket() { // デフォルト引数はプロトタイプ宣言�
   return result; // XBee内部の受信バッファ内のフレームデータの状態を返す
 }
 
+// 受信データが指定した文字列かどうかチェック
 boolean EV86XBee::checkData(String request) {
   if (get_data.equals(request)) {
     Serial.println("SUCCESS!!");
@@ -556,6 +578,10 @@ boolean EV86XBee::checkData(String request) {
     Serial.println("ERROR");
     return false;
   }
+}
+
+int EV86XBee::getConnectStatus() {
+  return connectStatus;
 }
 
 
