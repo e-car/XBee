@@ -104,8 +104,7 @@ void loop() {
      
     // 受信データの初期化
     router.clearData();
-     
-     delay(100); 
+    delay(100); 
    }
    coor.transmit = true;
    Serial.println("Connected with coordinator"); 
