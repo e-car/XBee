@@ -46,19 +46,19 @@ void setup() {
   coor.bufFlush();
   delay(1000);
   
-//  // ホストXBeeの設定確認
-//  coor.hsXBeeStatus();                     
-//  delay(2000);
+  // ホストXBeeの設定確認
+  coor.hsXBeeStatus();                     
+  delay(2000);
   
-//  // リモートXBeeのアドレス指定と設定情報の取得
-//  coor.setDstAdd64(router.h64Add, router.l64Add);
-//  coor.rmXBeeStatus();
-//  delay(2000);
+  // リモートXBeeのアドレス指定と設定情報の取得
+  coor.setDstAdd64(router.h64Add, router.l64Add);
+  coor.rmXBeeStatus();
+  delay(2000);
   
-//  // リモートXBeeのアドレス指定と設定情報の取得
-//  coor.setDstAdd64(router2.h64Add, router2.l64Add);
-//  coor.rmXBeeStatus();
-//  delay(2000);
+  // リモートXBeeのアドレス指定と設定情報の取得
+  coor.setDstAdd64(router2.h64Add, router2.l64Add);
+  coor.rmXBeeStatus();
+  delay(2000);
   
   //コネクション確立のためのセッション
   connectProcess(router);
