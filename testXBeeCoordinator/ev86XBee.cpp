@@ -18,6 +18,7 @@ EV86XBee::EV86XBee()
 void EV86XBee::begin(Stream &serial) {
   // XBeeオブジェクトにSerial情報を取り次ぐ
   _xbee.begin(serial);
+  bufFlush();
 }
 
 void EV86XBee::bufFlush() {
@@ -43,7 +44,7 @@ void EV86XBee::setDstAdd64(uint32_t msbAdd, uint32_t lsbAdd) {
 // データ送信用の基底メソッド
 void EV86XBee::sendData(String str) {
   if (str.length() > 83) {
-    Serial.println("can't send data due to too send data !");
+    Serial.println("Can't send data due to too send data !");
   } else {
     uint8_t reqArray[str.length() + 1]; 
     str.getBytes(reqArray, (str.length() + 1));
