@@ -39,7 +39,6 @@ void setup() {
   */
   Serial.begin(9600);                          // Arduino-PC間の通信
   Serial1.begin(9600);                         // Arduino-XBee間の通信
-  Serial1.flush();                             // serial bufferをクリア
   coor.begin(Serial1);                         // XBeeにSerialの情報を渡す
   delay(5000);                                 // XBeeの初期化のために5秒間待機
    
